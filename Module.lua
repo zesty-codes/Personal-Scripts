@@ -4,13 +4,31 @@ local Backpack = LocalPlayer:WaitForChild("Backpack")
 local Skywars = {}
 Skywars.__index = Skywars
 
+function getMap()
+    for i, v in next, workspace:GetChildren() do
+        if v:FindFirstChild("Map") and v.Map:FindFirstChild("Ores") then
+            return v.Map
+        end
+    end
+end
+
+function getOres()
+    local map = getMap()
+
+    if map then
+        return map.Ores:GetChildren()
+    end
+
+    return {}
+end
+
 function Break(self, Block)
     if not self then return nil end
     if typeof(Block) == "Instance" then
         local Axe = Backpack:FindFirstChild("Axe") or localPlayer.Character and localPlayer.Character:FindFirstChild("Axe") or nil
         if Axe ~= nil then
             local Remote = Axe:FindFirstChild("RemoteEvent")
-            if Remote ~= nil then
+            if Remote ~= nil and (localPlayer.Character.HumanoidRootPart.Position - Block.Position).Magnitude < 15 then
                 Remote:FireServer(Block)
                 if not Block or not Block:GetFullName():find("Workspace") then
                     self.Events.Broke:Fire(Block)
@@ -89,6 +107,16 @@ function Skywars.new()
     end
 
     return setmetatable(self, Skywars)
+end
+
+function Skywars:getMineableOres()
+    local blocks = {}
+
+    if isPlayerInMatch(localPlayer) and getMap() ~= nil then
+        blocks = getOres()
+    end
+
+    return blocks
 end
 
 return Skywars
