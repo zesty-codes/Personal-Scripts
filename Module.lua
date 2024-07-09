@@ -77,7 +77,12 @@ function Skywars.new()
 
     function self:Break(block)
         return Break(self, block)
-    end
+    end;
+
+    (localPlayer.Character or localPlayer.CharacterAdded:Wait()):WaitForChild("Humanoid").Died:Connect(function()
+        self.Events.Died:Fire()
+        self.lastDied = tick()
+    end)
 
     LocalPlayer.CharacterAdded:Connect(function(v)
         self.Events.Respawned:Fire(v);
